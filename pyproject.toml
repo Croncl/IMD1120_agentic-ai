@@ -18,6 +18,7 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = ["pytest", "ipykernel"]
+apps = ["fastapi", "uvicorn", "streamlit"]
 
 [tool.hatch.build.targets.wheel]
 packages = ["agentkit"]
