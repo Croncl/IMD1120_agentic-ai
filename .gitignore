@@ -16,3 +16,4 @@ __pycache__/
 workdir/
 workspace/
 memory.json
+.env

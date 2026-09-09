@@ -70,7 +70,7 @@ O único backend é um modelo local do Hugging Face carregado com `transformers`
 ## Uso
 
 ```python
-from agentkit import LLM, run_agent, tool
+from agentkit import LLM, Agent, tool
 
 @tool
 def soma(a: int, b: int) -> int:
@@ -78,6 +78,6 @@ def soma(a: int, b: int) -> int:
     return a + b
 
 llm = LLM("Qwen/Qwen2.5-0.5B-Instruct", temperature=0.0)
-resultado = run_agent(llm, "Use the soma tool to add 20 and 22.", tools=[soma])
-print(resultado["answer"])
+messages = Agent(llm, tools=[soma]).run("Use the soma tool to add 20 and 22.")
+print(messages[-1]["content"])
 ```
