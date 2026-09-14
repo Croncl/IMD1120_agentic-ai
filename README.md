@@ -59,13 +59,11 @@ longo da Unidade I:
 
 ```text
 agentkit/
-├── model.py    modelo e embeddings com Hugging Face
+├── model.py    modelos de linguagem e embeddings
 ├── tools.py    formato e execução de ferramentas
 ├── memory.py   memória com listas e dicionários
 └── agent.py    laço do agente
 ```
-
-O único backend é um modelo local do Hugging Face carregado com `transformers`.
 
 ## Uso
 

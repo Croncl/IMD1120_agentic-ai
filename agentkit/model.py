@@ -183,20 +183,43 @@ def parse_tool_calls(text: str) -> list[dict]:
     return calls
 
 
+OPENAI_BASE_URL = "https://api.openai.com/v1"
+
+
 class LLMAPI:
     """Modelo servido por uma API no formato chat completions da OpenAI.
 
     Tem a mesma superfície do LLM — invoke, bind_tools, generate_structured e o
     registro em last_usage — para que o agente e a memória não precisem saber de
-    onde vem a resposta. Serve qualquer endpoint que fale esse formato, e a
-    diferença entre eles é a base_url.
+    onde vem a resposta.
+
+    O formato não é um padrão de comitê: é a API da OpenAI, que os demais
+    provedores passaram a imitar. Por isso apontar para outro serviço é questão
+    de trocar a base_url e a chave.
+
+        OpenAI   https://api.openai.com/v1
+        Groq     https://api.groq.com/openai/v1
+
+    Qualquer servidor que fale o mesmo formato serve, inclusive um rodando na
+    própria máquina, como Ollama ou vLLM. Servidores locais costumam ignorar a
+    chave, mas o argumento continua obrigatório: passe qualquer texto.
+
+    A conversa viaja num formato mais verboso que o do curso, e as funções
+    to_api_messages e to_api_tools fazem a tradução. Três diferenças importam: a
+    chamada de ferramenta chega dentro de tool_calls com um identificador, os
+    argumentos viajam como string JSON em vez de objeto, e a observação precisa
+    apontar de volta para a chamada pelo tool_call_id.
+
+    A chave vem do argumento api_key. A variável de ambiente OPENAI_API_KEY
+    só é consultada quando a base_url é a da OpenAI, para que a chave de um
+    provedor nunca seja enviada a outro.
     """
 
     def __init__(
         self,
         model: str,
         api_key: str | None = None,
-        base_url: str = "https://api.openai.com/v1",
+        base_url: str = OPENAI_BASE_URL,
         temperature: float = 0.7,
         top_p: float = 0.9,
         max_tokens: int = 512,
@@ -204,9 +227,14 @@ class LLMAPI:
     ) -> None:
         self.model = model
         self.base_url = base_url.rstrip("/")
-        self.api_key = api_key or os.environ.get("OPENAI_API_KEY", "")
-        if not self.api_key:
-            raise ValueError("Informe api_key ou defina a variável OPENAI_API_KEY.")
+        # A variável de ambiente vale só para a OpenAI. Sem essa condição, apontar
+        # para outro provedor sem informar a chave enviaria a chave da OpenAI para
+        # ele, que a recusaria depois de já tê-la recebido.
+        if api_key is None and self.base_url == OPENAI_BASE_URL:
+            api_key = os.environ.get("OPENAI_API_KEY", "")
+        if not api_key:
+            raise ValueError(f"Informe api_key para {self.base_url}.")
+        self.api_key = api_key
         self.temperature = temperature
         self.top_p = top_p
         self.max_tokens = max_tokens
