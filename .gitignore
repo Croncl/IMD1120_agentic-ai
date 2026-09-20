@@ -18,3 +18,7 @@ workdir/
 workspace/
 memory.json
 .env
+
+# gerados pelo notebook 11 - RAG
+regimento.pdf
+chroma_regimento/
