@@ -22,3 +22,6 @@ memory.json
 # gerados pelo notebook 11 - RAG
 regimento.pdf
 chroma_regimento/
+
+# versões resolvidas dos notebooks
+solutions/
